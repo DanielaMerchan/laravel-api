@@ -77,6 +77,7 @@ class FacturaController extends Controller
     {
         try {
 
+            //Validación de campos vacios
             $validator = Validator::make($request->all(), [
                 'emisor' => 'required|string|max:45',
                 'comprador' => 'required|string|max:45',
@@ -102,6 +103,7 @@ class FacturaController extends Controller
                 return response()->json(["status" => "error", "message" => ['comprador' => 'El comprador debe tener nombre y NIT']], 422);
             }
 
+            //Valida ciclicamente los datos del json correspondientes a los items facturados
             foreach ($items_facturados as $key => $item) {
                 if (
                     empty($item['descripcion'])  || empty($item['cantidad'])
@@ -129,7 +131,9 @@ class FacturaController extends Controller
 
     /**
      * Display the specified resource.
-     * Solo se muestra la factura solicitada
+     * 
+     * Solo se muestra la factura solicitada, su identificador es enviado por parametro, en caso de no existir responde con error
+     * 
      * @param  \App\Models\Factura  $factura
      * @return \Illuminate\Http\Response
      */
@@ -149,19 +153,22 @@ class FacturaController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * Actualiza solo la factura solicitada, el identificador es enviado por parametro, en caso de no existir responde con error
+     * 
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Factura  $factura
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id_factura)
     {
-        var_dump($request->iva); die();
+        print_r("Actualización de factura: ".$id_factura); die();
         
         try {
 
+            //Validación de campos vacios
             $validator = Validator::make($request->all(), [
-                'emisor' => 'required|string|max:45',
-                'comprador' => 'required|string|max:45',
+                'emisor' => 'required|string',
+                'comprador' => 'required|string',
                 'valor_antes_iva' => 'required|string|max:15',
                 'iva' => 'required|string|max:15',
                 'valor_a_pagar' => 'required|string|max:15',
@@ -176,7 +183,7 @@ class FacturaController extends Controller
             $comprador = json_decode($request->comprador, true);
             $items_facturados = json_decode($request->items_facturados, true);
 
-            // validación
+            // validación de datos completos en el json
             if (empty($emisor['name']) || empty($emisor['nit'])) {
                 return response()->json(["status" => "error", "message" => ['emisor' => 'El emisor debe tener nombre y NIT']], 422);
             }
@@ -185,6 +192,7 @@ class FacturaController extends Controller
                 return response()->json(["status" => "error", "message" => ['comprador' => 'El comprador debe tener nombre y NIT']], 422);
             }
 
+            // Valida ciclicamente los datos del json correspondientes a los items facturados
             foreach ($items_facturados as $key => $item) {
                 if (
                     empty($item['descripcion'])  || empty($item['cantidad'])
@@ -202,7 +210,7 @@ class FacturaController extends Controller
             $factura->valor_antes_iva = $request->valor_antes_iva;
             $factura->iva = $request->iva;
             $factura->valor_a_pagar = $request->valor_a_pagar;
-            $factura->items_facturados = json_encode($items_facturados);
+            // $factura->items_facturados = json_encode($items_facturados); //No se permite actualizar los items facturados
             $factura->save();
 
             return redirect('/factura')->with('success', 'Factura actualizada.');
@@ -221,7 +229,7 @@ class FacturaController extends Controller
     public function destroy($id_factura)
     {
 
-        // Valida si la factura existe, en caso contrario responderá con error
+        // Valida si la factura existe, en caso de no existir responde con error
         $factura = Factura::find($id_factura);
         if(!empty($factura)) { 
             $factura->delete(); 

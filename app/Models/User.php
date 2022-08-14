@@ -13,6 +13,8 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    //Creación del modelo de User y sus respectivas funciones, para la verificación de datos y comprobación del token generado por JWT
+
     /**
      * The attributes that are mass assignable.
      *
@@ -39,10 +41,12 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array<string, string>
      */
+
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
+    //Funciones generadas para la implementación JWT en la clase y el uso de su clase
     public function getJWTIdentifier()
     {
         return $this->getKey();

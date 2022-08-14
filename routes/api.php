@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/auth', [App\Http\Controllers\UserController::class, 'authenticate']);
+Route::get('/facturapreliminar', [App\Http\Controllers\Api\v1\FacturaController::class, 'index'])->name('factura');
 
 
 //Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
